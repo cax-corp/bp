@@ -47,6 +47,24 @@
             font-weight: bold;
         }
 
+        .notif-btn {
+            margin-left: 16px;
+            background: transparent;
+            color: #dbeafe;
+            border: 1px solid rgba(219, 234, 254, 0.08);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+
+        .notif-btn.enabled {
+            background: linear-gradient(90deg, #ff8484, #ffb3b3);
+            color: #1f2937;
+            border-color: transparent;
+        }
+
         .timeline {
             display: grid;
             gap: 20px;
@@ -463,7 +481,10 @@
     <div class="container">
         <header>
             <h1>Planning : 18 ans Thomas</h1>
-            <div class="current-time" id="currentTime"></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div class="current-time" id="currentTime"></div>
+                <button id="notifToggle" class="notif-btn" title="Activer les notifications">Activer notifications</button>
+            </div>
         </header>
 
         <div class="timeline" id="timeline"></div>
@@ -566,6 +587,81 @@
                 responsables: ['Thomas', 'Yannou']
             }
         ];
+
+        // Notifications state
+        let notificationsEnabled = localStorage.getItem('notificationsEnabled') === 'true';
+        let prevStatuses = [];
+        let notifFirstRun = true; // prevent notifications on initial load
+
+        function updateNotifButton() {
+            const btn = document.getElementById('notifToggle');
+            if (!btn) return;
+            if (notificationsEnabled) {
+                btn.classList.add('enabled');
+                btn.textContent = 'Notifications activées';
+            } else {
+                btn.classList.remove('enabled');
+                btn.textContent = 'Activer notifications';
+            }
+        }
+
+        // Request permission and toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('notifToggle');
+            if (!btn) return;
+            updateNotifButton();
+            btn.addEventListener('click', async () => {
+                if (notificationsEnabled) {
+                    notificationsEnabled = false;
+                    localStorage.setItem('notificationsEnabled', 'false');
+                    updateNotifButton();
+                    return;
+                }
+
+                // Ask for permission
+                if (Notification.permission === 'granted') {
+                    notificationsEnabled = true;
+                    localStorage.setItem('notificationsEnabled', 'true');
+                    updateNotifButton();
+                    return;
+                }
+
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === 'granted') {
+                        notificationsEnabled = true;
+                        localStorage.setItem('notificationsEnabled', 'true');
+                        updateNotifButton();
+                    } else {
+                        notificationsEnabled = false;
+                        localStorage.setItem('notificationsEnabled', 'false');
+                        updateNotifButton();
+                        alert('Notifications non autorisées. Vous pouvez les activer dans les paramètres du navigateur.');
+                    }
+                } catch (e) {
+                    console.error('Notification permission failed', e);
+                }
+            });
+        });
+
+        function sendNotification(eventObj, status) {
+            if (!notificationsEnabled) return;
+            if (Notification.permission !== 'granted') return;
+
+            const title = `${eventObj.title} — ${status === 'soon' ? 'Bientôt' : 'En cours'}`;
+            const body = `Événement : ${eventObj.title}\nÉtat : ${status === 'soon' ? 'Bientôt' : 'En cours'}`;
+            try {
+                const n = new Notification(title, {
+                    body,
+                    tag: `event-${eventObj.time}-${eventObj.title}`,
+                    renotify: true
+                });
+                // Optional: close after some seconds
+                setTimeout(() => n.close(), 8000);
+            } catch (e) {
+                console.error('Failed to send notification', e);
+            }
+        }
 
         function updateTime() {
             const now = new Date();
@@ -686,12 +782,14 @@
 
         function updateEventStatus() {
             const eventElements = document.querySelectorAll('.event');
-            
+            const newStatuses = [];
+
             events.forEach((event, index) => {
                 const eventTime = parseTime(event.time);
                 const status = getEventStatus(eventTime, index);
+                newStatuses.push(status);
+
                 const eventElement = eventElements[index];
-                
                 if (eventElement) {
                     eventElement.className = `event ${status}`;
                     const statusIndicator = eventElement.querySelector('.status-indicator');
@@ -702,7 +800,20 @@
                         `;
                     }
                 }
+
+                // Handle notifications on transitions (but not on the very first run)
+                if (!notifFirstRun) {
+                    const prev = prevStatuses[index];
+                    if (prev !== status && (status === 'soon' || status === 'current')) {
+                        // send a notification for this event
+                        sendNotification(event, status);
+                    }
+                }
             });
+
+            // Update previous statuses and clear first-run flag
+            prevStatuses = newStatuses.slice();
+            if (notifFirstRun) notifFirstRun = false;
         }
 
         function openModal(event) {
