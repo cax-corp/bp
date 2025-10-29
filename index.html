@@ -519,7 +519,7 @@
             {
                 time: '20:15',
                 title: 'Toast et discours',
-                description: 'Mots d'accueil, toast pour Thomas et discours des volontaires',
+                description: 'Mots d\'accueil, toast pour Thomas et discours des volontaires',
                 category: 'Animation',
                 responsables: ['Tous']
             },
@@ -527,42 +527,42 @@
                 time: '20:30',
                 title: 'Dîner',
                 description: 'Repas assis avec tous les invités, musique en fond sonore',
-                category: 'Animation', 'Restauration', 'Paella'
+                category: ['Animation', 'Restauration', 'Paella'],
                 responsables: ['Thomas']
             },
             {
                 time: '22:00',
                 title: 'Gâteau',
                 description: 'Le moment tant attendu : bougies, vœux et majorité ! Photos et vidéos',
-                category: 'Animation', 'Restauration'
+                category: ['Animation', 'Restauration'],
                 responsables: ['Tous']
             },
             {
                 time: '22:30',
                 title: 'Ouverture du dancefloor',
                 description: 'Première chanson symbolique puis musique DJ pour danser toute la soirée',
-                category: 'Animation', 'MIX'
+                category: ['Animation', 'MIX'],
                 responsables: ['Thomas']
             },
             {
                 time: '00:00',
                 title: 'Ambiance nocturne',
                 description: 'La fête continue ! Animation jusqu\'au bout de la nuit',
-                category: 'Animation', 'MIX',
+                category: ['Animation', 'MIX'],
                 responsables: ['Thomas']
             },
             {
                 time: '01:30',
                 title: 'Fin de première partie',
                 description: 'Dernières chansons, remerciements et au revoir aux vieux',
-                category: 'Animation'
+                category: ['Animation'],
                 responsables: ['Tous']
             },
             {
                 time: '01:45',
                 title: 'After party',
                 description: 'After party plus house / tech, plus niche (plus particulier)',
-                category: 'Animation', 'MIX'
+                category: ['Animation', 'MIX'],
                 responsables: ['Thomas', 'Yannou']
             }
         ];
@@ -710,7 +710,7 @@
             document.getElementById('modalTitle').textContent = event.title;
             document.getElementById('modalTime').textContent = event.time;
             document.getElementById('modalDescription').textContent = event.description;
-            document.getElementById('modalCategory').textContent = event.category;
+            document.getElementById('modalCategory').textContent = Array.isArray(event.category) ? event.category.join(', ') : event.category;
             
             const responsablesList = document.getElementById('modalResponsables');
             responsablesList.innerHTML = '';
