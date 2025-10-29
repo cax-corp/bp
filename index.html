@@ -496,54 +496,75 @@
     <script>
         const events = [
             {
-                time: '18:00',
+                time: '19:00',
                 title: 'Arrivée des invités',
-                description: 'Accueil avec cocktails et amuse-bouches',
+                description: 'Accueil de la famille et des amis dans la salle avec musique d\'ambiance',
                 category: 'Accueil',
                 responsables: ['Cyril', 'Mylène']
             },
             {
-                time: '19:00',
-                title: 'Apéritif',
-                description: 'Moment convivial avec boissons et musique d\'ambiance',
+                time: '19:30',
+                title: 'Apéritif dinatoire',
+                description: 'Moment convivial avec boissons et amuse-bouches, les invités se retrouvent',
                 category: 'Restauration',
                 responsables: ['Tous']
             },
             {
                 time: '20:00',
-                title: 'Dîner',
-                description: 'Repas festif avec tous les invités',
-                category: 'Restauration',
+                title: 'Entrée spectaculaire',
+                description: 'Projection de la vidéo au projecteur - synchronisation avec l\'entrée en direct dans la salle !',
+                category: 'Animation',
+                responsables: ['Thomas', 'Cyril']
+            },
+            {
+                time: '20:15',
+                title: 'Toast et discours',
+                description: 'Mots d'accueil, toast pour Thomas et discours des volontaires',
+                category: 'Animation',
                 responsables: ['Tous']
             },
             {
-                time: '21:30',
-                title: 'Gâteau d\'anniversaire',
-                description: 'Le moment tant attendu : bougies et vœux !',
-                category: 'Animation',
-                responsables: ['Cyril', 'Autres']
+                time: '20:30',
+                title: 'Dîner',
+                description: 'Repas assis avec tous les invités, musique en fond sonore',
+                category: 'Animation', 'Restauration', 'Paella'
+                responsables: ['Thomas']
             },
             {
                 time: '22:00',
-                title: 'Ouverture de la piste',
-                description: 'Musique et danse jusqu\'au bout de la nuit',
-                category: 'Animation',
+                title: 'Gâteau',
+                description: 'Le moment tant attendu : bougies, vœux et majorité ! Photos et vidéos',
+                category: 'Animation', 'Restauration'
+                responsables: ['Tous']
+            },
+            {
+                time: '22:30',
+                title: 'Ouverture du dancefloor',
+                description: 'Première chanson symbolique puis musique DJ pour danser toute la soirée',
+                category: 'Animation', 'MIX'
                 responsables: ['Thomas']
             },
             {
                 time: '00:00',
-                title: 'Soirée continue',
-                description: 'La fête bat son plein !',
-                category: 'Animation',
+                title: 'Ambiance nocturne',
+                description: 'La fête continue ! Animation jusqu\'au bout de la nuit',
+                category: 'Animation', 'MIX',
+                responsables: ['Thomas']
+            },
+            {
+                time: '01:30',
+                title: 'Fin de première partie',
+                description: 'Dernières chansons, remerciements et au revoir aux vieux',
+                category: 'Animation'
                 responsables: ['Tous']
             },
             {
-                time: '02:00',
-                title: 'After',
-                description: 'After un peu plus électro / underground',
-                category: 'MIX',
-                responsables: ['Thomas', 'Yann']
-            },
+                time: '01:45',
+                title: 'After party',
+                description: 'After party plus house / tech, plus niche (plus particulier)',
+                category: 'Animation', 'MIX'
+                responsables: ['Thomas', 'Yannou']
+            }
         ];
 
         function updateTime() {
