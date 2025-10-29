@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18 ans Thomas DASH</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .current-time {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: #ff5555;
+            font-weight: bold;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
+        }
+
+        .event {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #60a5fa;  /* Default blue for upcoming */
+            transition: all 0.3s ease;
+        }
+
+        .event.passed::before {
+            background: #64748b;  /* Gray for passed events */
+        }
+
+        .event.current::before {
+            background: #ff8484;  /* Red for current event */
+        }
+
+        .event.soon::before {
+            background: #fbbf24;  /* Yellow for soon events */
+        }
+
+        .event:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            border-color: #475569;
+        }
+
+        .event:hover::before {
+            width: 6px;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .event-time {
+            background: #334155;
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: 0.025em;
+        }
+
+        .event-title {
+            font-size: clamp(1.1rem, 2vw, 1.25rem);
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .event-description {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .event.passed {
+            opacity: 0.5;
+            background: #1a1f2e;
+        }
+
+        .event.current {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .event::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #60a5fa;  /* Default blue for upcoming */
+            transition: all 0.3s ease;
+        }
+
+        .event.passed::before {
+            background: #64748b;  /* Gray for passed events */
+        }
+
+        .event.current::before {
+            background: #ff8484;  /* Red for current event */
+        }
+
+        .event.soon::before {
+            background: #fbbf24;  /* Yellow for soon events */
+        }
+
+        .event.current .event-time {
+            background: #2563eb;
+            color: #dbeafe;
+        }
+
+        .event.current .event-title {
+            color: #dbeafe;
+        }
+
+        .event.current .event-description {
+            color: #bfdbfe;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .event.passed .status-indicator {
+            color: #64748b;
+        }
+
+        .event.current .status-indicator {
+            color: #ff8484;
+        }
+
+        .event.current .status-dot {
+            color: #ff8484;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .event.upcoming .status-indicator {
+            color: #60a5fa;
+        }
+
+        .event.soon .status-indicator {
+            color: #fbbf24;
+        }
+
+        .event.soon .status-dot {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            margin: 5vh auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.3s ease;
+            border: 1px solid #334155;
+        }
+
+        .modal-header {
+            padding: 32px;
+            border-bottom: 1px solid #334155;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            font-size: 28px;
+            font-weight: 300;
+            color: #64748b;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .close:hover {
+            color: #f1f5f9;
+            background: #334155;
+        }
+
+        .modal-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            color: #f1f5f9;
+            margin-bottom: 12px;
+            font-weight: 700;
+            padding-right: 40px;
+            line-height: 1.2;
+        }
+
+        .modal-time {
+            display: inline-block;
+            background: #334155;
+            color: #cbd5e1;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .modal-description {
+            font-size: 1.05rem;
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .modal-details {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .detail-section {
+            background: #0f172a;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #dbeafe;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .responsable-list {
+            list-style: none;
+        }
+
+        .responsable-list li {
+            padding: 10px 0;
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .responsable-list li:not(:last-child) {
+            border-bottom: 1px solid #334155;
+        }
+
+        .responsable-list li::before {
+            content: '●';
+            color: #3b82f6;
+            font-size: 0.75rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            header {
+                padding: 24px;
+                margin-bottom: 24px;
+            }
+
+            .timeline {
+                gap: 16px;
+            }
+
+            .event {
+                padding: 20px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2vh auto;
+            }
+
+            .modal-header {
+                padding: 24px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 20px;
+            }
+
+            .event {
+                padding: 16px;
+            }
+
+            .event-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-header {
+                padding: 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .close {
+                right: 16px;
+                top: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Planning : 18 ans Thomas</h1>
+            <div class="current-time" id="currentTime"></div>
+        </header>
+
+        <div class="timeline" id="timeline"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <div class="modal-title" id="modalTitle"></div>
+                <div class="modal-time" id="modalTime"></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-description" id="modalDescription"></div>
+                <div class="modal-details">
+                    <div class="detail-section">
+                        <div class="detail-label">Catégorie</div>
+                        <span class="category-badge" id="modalCategory"></span>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-label">Responsables</div>
+                        <ul class="responsable-list" id="modalResponsables"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const events = [
+            {
+                time: '13:00',
+                title: 'Arrivée des invités',
+                description: 'Accueil avec cocktails et amuse-bouches',
+                category: 'Accueil',
+                responsables: ['Cyril', 'Mylène']
+            },
+            {
+                time: '19:00',
+                title: 'Apéritif',
+                description: 'Moment convivial avec boissons et musique d\'ambiance',
+                category: 'Restauration',
+                responsables: ['Tous']
+            },
+            {
+                time: '20:00',
+                title: 'Dîner',
+                description: 'Repas festif avec tous les invités',
+                category: 'Restauration',
+                responsables: ['Tous']
+            },
+            {
+                time: '21:30',
+                title: 'Gâteau d\'anniversaire',
+                description: 'Le moment tant attendu : bougies et vœux !',
+                category: 'Animation',
+                responsables: ['Cyril', 'Autres']
+            },
+            {
+                time: '22:00',
+                title: 'Ouverture de la piste',
+                description: 'Musique et danse jusqu\'au bout de la nuit',
+                category: 'Animation',
+                responsables: ['Thomas']
+            },
+            {
+                time: '00:00',
+                title: 'Soirée continue',
+                description: 'La fête bat son plein !',
+                category: 'Animation',
+                responsables: ['Tous']
+            },
+            {
+                time: '02:00',
+                title: 'After',
+                description: 'After un peu plus électro / underground',
+                category: 'MIX',
+                responsables: ['Thomas', 'Yann']
+            },
+        ];
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('fr-FR', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('currentTime').textContent = `${dateString} • ${timeString}`;
+        }
+
+        function parseTime(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const date = new Date();
+            // If the hour is less than 6, assume it's early morning of next day
+            if (hours < 6) {
+                date.setDate(date.getDate() + 1);
+            }
+            date.setHours(hours, minutes, 0, 0);
+            return date;
+        }
+
+        function getEventStatus(eventTime, eventIndex) {
+            const now = new Date();
+            const eventDate = eventTime.getDate();
+            const currentDate = now.getDate();
+            
+            // Convert times to minutes since midnight
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            let eventMinutes = eventTime.getHours() * 60 + eventTime.getMinutes();
+            
+            // Adjust event minutes if it's for tomorrow
+            if (eventDate > currentDate) {
+                eventMinutes += 24 * 60; // Add 24 hours worth of minutes
+            }
+            
+            const minutesUntilEvent = eventMinutes - currentMinutes;
+            
+            // Get the next event's start time (if there is one)
+            const nextEvent = events[eventIndex + 1];
+            let nextEventMinutes = Infinity;
+            if (nextEvent) {
+                const nextEventTime = parseTime(nextEvent.time);
+                nextEventMinutes = nextEventTime.getHours() * 60 + nextEventTime.getMinutes();
+                if (nextEventTime.getDate() > currentDate) {
+                    nextEventMinutes += 24 * 60;
+                }
+            }
+            
+            // If we're exactly at or past this event's start time but before the next event
+            if (minutesUntilEvent <= 0 && currentMinutes < nextEventMinutes) {
+                return 'current';
+            }
+            
+            // If we're past this event and the next event has started
+            if (minutesUntilEvent < 0 && currentMinutes >= nextEventMinutes) {
+                return 'passed';
+            }
+            
+            // If the event is starting in the next 15 minutes
+            if (minutesUntilEvent > 0 && minutesUntilEvent <= 15) {
+                return 'soon';
+            }
+            
+            // If the event is in the future
+            if (minutesUntilEvent > 15) {
+                return 'upcoming';
+            }
+            
+            return 'upcoming';
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'passed': return 'Terminé';
+                case 'current': return 'En cours';
+                case 'soon': return 'Bientôt';
+                case 'upcoming': return 'À venir';
+                default: return '';
+            }
+        }
+
+        function renderEvents() {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+
+            events.forEach((event, index) => {
+                const eventTime = parseTime(event.time);
+                const status = getEventStatus(eventTime, index);
+
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `event ${status}`;
+
+                eventDiv.innerHTML = `
+                    <div class="event-header">
+                        <div>
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-description">${event.description}</div>
+                            <div class="status-indicator">
+                                <span class="status-dot"></span>
+                                ${getStatusText(status)}
+                            </div>
+                        </div>
+                        <div class="event-time">${event.time}</div>
+                    </div>
+                `;
+
+                eventDiv.addEventListener('click', () => openModal(event));
+                timeline.appendChild(eventDiv);
+            });
+        }
+
+        function updateEventStatus() {
+            const eventElements = document.querySelectorAll('.event');
+            
+            events.forEach((event, index) => {
+                const eventTime = parseTime(event.time);
+                const status = getEventStatus(eventTime, index);
+                const eventElement = eventElements[index];
+                
+                if (eventElement) {
+                    eventElement.className = `event ${status}`;
+                    const statusIndicator = eventElement.querySelector('.status-indicator');
+                    if (statusIndicator) {
+                        statusIndicator.innerHTML = `
+                            <span class="status-dot"></span>
+                            ${getStatusText(status)}
+                        `;
+                    }
+                }
+            });
+        }
+
+        function openModal(event) {
+            const modal = document.getElementById('eventModal');
+            document.getElementById('modalTitle').textContent = event.title;
+            document.getElementById('modalTime').textContent = event.time;
+            document.getElementById('modalDescription').textContent = event.description;
+            document.getElementById('modalCategory').textContent = event.category;
+            
+            const responsablesList = document.getElementById('modalResponsables');
+            responsablesList.innerHTML = '';
+            event.responsables.forEach(resp => {
+                const li = document.createElement('li');
+                li.textContent = resp;
+                responsablesList.appendChild(li);
+            });
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        document.querySelector('.close').addEventListener('click', closeModal);
+        
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('eventModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        updateTime();
+        renderEvents();
+
+        setInterval(() => {
+            updateTime();
+            updateEventStatus();
+        }, 1000);
+    </script>
+</body>
+</html>
